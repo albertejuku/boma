@@ -31,11 +31,11 @@ typedef enum {
 
 typedef struct {
     TokenType type;
-    void *lexeme;
+    string lexeme;
     Location location;
 } Token;
 
-Token *createToken(TokenType type, const char *lexeme, int line, int column);
+Token *createToken(TokenType type, string lexeme, int line, int column);
 
 void freeToken(Token *token);
 

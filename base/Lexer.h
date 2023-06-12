@@ -27,6 +27,7 @@ private:
     int currentPosition;
     int currentLine;
     int currentColumn;
+    string lexeme;
 };
 
 #endif //BOMA_LEXER_H

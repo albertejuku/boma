@@ -4,17 +4,17 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <utility>
 #include "Token.h"
 
-Token* createToken(TokenType type, const char* lexeme, int line, int column) {
-    auto* token = (Token*)malloc(sizeof(Token));
+Token *createToken(TokenType type, string lexeme, int line, int column) {
+    auto *token = (Token *) malloc(sizeof(Token));
     token->type = type;
-    token->lexeme = strdup(lexeme);
+    token->lexeme = std::move(lexeme);
     token->location = *createLocation(line, column);
     return token;
 }
 
-void freeToken(Token* token) {
-    free(token->lexeme);
+void freeToken(Token *token) {
     free(token);
 }

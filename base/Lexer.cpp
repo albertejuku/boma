@@ -7,13 +7,14 @@
 #include <utility>
 
 Lexer::Lexer(string sourceCode) : sourceCode(std::move(sourceCode)), currentPosition(0), currentLine(1), currentColumn(1) {
-
+    this->lexeme = "";
 }
 
 Token *Lexer::getNextToken() {
+
     while (!isAtEnd()) {
         char c = advance();
-
+        lexeme += c;
         switch (c) {
             // Single-character tokens
             case '(':
@@ -51,12 +52,13 @@ Token *Lexer::getNextToken() {
             case ' ':
             case '\r':
             case '\t':
+                lexeme.pop_back();
                 break;
             case '\n':
+                lexeme.pop_back();
                 currentLine++;
                 currentColumn = 1;
                 break;
-
             default:
                 if (isDigit(c)) {
                     tokenizeNumber();
@@ -70,7 +72,7 @@ Token *Lexer::getNextToken() {
         }
     }
 
-    return createToken(END_OF_FILE, "", currentLine, currentColumn);
+    return createToken(END_OF_FILE, lexeme, currentLine, currentColumn);
 }
 
 bool Lexer::isAtEnd() {
