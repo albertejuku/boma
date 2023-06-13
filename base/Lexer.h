@@ -5,6 +5,7 @@
 #ifndef BOMA_LEXER_H
 #define BOMA_LEXER_H
 
+#include <vector>
 #include "string"
 #include "Token.h"
 
@@ -12,14 +13,16 @@ class Lexer {
 public:
     explicit Lexer(string  sourceCode);
     Token* getNextToken();
+    std::vector<Token> * getTokens();
+
 private:
     bool isAtEnd();
     char advance();
     bool isDigit(char c);
     bool isAlpha(char c);
-    void addToken(TokenType type);
     void tokenizeNumber();
     void tokenizeIdentifier();
+    bool tokenizeKeyword(const string& word);
     char peek();
     char peekNext();
 
@@ -28,6 +31,8 @@ private:
     int currentLine;
     int currentColumn;
     string lexeme;
+    TokenType tokenType;
+
 };
 
 #endif //BOMA_LEXER_H

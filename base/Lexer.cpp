@@ -5,74 +5,87 @@
 #include "Lexer.h"
 
 #include <utility>
+#include <iostream>
+#include <vector>
 
-Lexer::Lexer(string sourceCode) : sourceCode(std::move(sourceCode)), currentPosition(0), currentLine(1), currentColumn(1) {
-    this->lexeme = "";
+Lexer::Lexer(string sourceCode) : sourceCode(std::move(sourceCode)), currentPosition(0), currentLine(1),
+                                  currentColumn(1), lexeme("") {
 }
 
 Token *Lexer::getNextToken() {
 
-    while (!isAtEnd()) {
-        char c = advance();
-        lexeme += c;
-        switch (c) {
-            // Single-character tokens
-            case '(':
-                addToken(LEFT_PAREN);
-                break;
-            case ')':
-                addToken(RIGHT_PAREN);
-                break;
-            case '{':
-                addToken(LEFT_BRACE);
-                break;
-            case '}':
-                addToken(RIGHT_BRACE);
-                break;
-            case ',':
-                addToken(COMMA);
-                break;
-            case ';':
-                addToken(SEMICOLON);
-                break;
-            case '+':
-                addToken(PLUS);
-                break;
-            case '-':
-                addToken(MINUS);
-                break;
-            case '*':
-                addToken(MULTIPLY);
-                break;
-            case '/':
-                addToken(DIVIDE);
-                break;
+    char c = advance();
+    lexeme = c;
+    switch (c) {
+        // Single-character tokens
+        case '(':
+            tokenType = LEFT_PAREN;
+            break;
+        case ')':
+            tokenType = RIGHT_PAREN;
+            break;
+        case '{':
+            tokenType = LEFT_BRACE;
+            break;
+        case '}':
+            tokenType = (RIGHT_BRACE);
+            break;
+        case ',':
+            tokenType = (COMMA);
+            break;
+        case ';':
+            tokenType = (SEMICOLON);
+            break;
+        case '+':
+            tokenType = (PLUS);
+            break;
+        case '-':
+            tokenType = (MINUS);
+            break;
+        case '*':
+            tokenType = (MULTIPLY);
+            break;
+        case '/':
+            tokenType = (DIVIDE);
+            break;
 
-                // Ignore whitespace and newline
-            case ' ':
-            case '\r':
-            case '\t':
-                lexeme.pop_back();
-                break;
-            case '\n':
-                lexeme.pop_back();
-                currentLine++;
-                currentColumn = 1;
-                break;
-            default:
-                if (isDigit(c)) {
-                    tokenizeNumber();
-                } else if (isAlpha(c)) {
-                    tokenizeIdentifier();
-                } else {
-                    // Handle unexpected character
-                    // ...
-                }
-                break;
-        }
+            // Ignore whitespace and newline
+        case ' ':
+        case '\r':
+        case '\t':
+            lexeme.pop_back();
+            break;
+        case '\n':
+            lexeme.pop_back();
+            currentLine++;
+            currentColumn = 1;
+            break;
+        default:
+            if (isDigit(c)) {
+                tokenizeNumber();
+            } else if (isAlpha(c)) {
+                tokenizeIdentifier();
+            } else {
+                // Handle unexpected character
+                // ...
+            }
+            break;
     }
 
-    return createToken(END_OF_FILE, lexeme, currentLine, currentColumn);
+    cout << "LEXEME: " << lexeme << endl;
+    cout << "TOKEN: " << tokenType << endl;
+    return nullptr;
+//    return createToken(END_OF_FILE, lexeme, currentLine, currentColumn);
+}
+
+vector<Token> *Lexer::getTokens() {
+    auto *tokens = new vector<Token>();
+    while (!isAtEnd()) {
+//        tokens->push_back(*getNextToken());
+        getNextToken();
+    }
+
+    return tokens;
 }
 
 bool Lexer::isAtEnd() {
@@ -93,17 +106,66 @@ bool Lexer::isAlpha(char c) {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 
-void Lexer::addToken(TokenType type) {
-
-}
-
 void Lexer::tokenizeNumber() {
 
 }
 
 void Lexer::tokenizeIdentifier() {
+    char c = advance();
+    while (isAlpha(c)) {
+        lexeme += c;
+        c = advance();
+    }
+
+    tokenizeKeyword(lexeme);
 
 }
+
+bool Lexer::tokenizeKeyword(const string &keyword) {
+    if (keyword == "var") {
+        tokenType = VAR;
+    } else if (keyword == "function") {
+        tokenType = FUNCTION;
+    } else if (keyword == "return") {
+        tokenType = RETURN;
+    } else if (keyword == "const") {
+        tokenType = CONST;
+    } else if (keyword == "if") {
+        tokenType = IF;
+    } else if (keyword == "else") {
+        tokenType = ELSE;
+    } else if (keyword == "elif") {
+        tokenType = ELIF;
+    } else if (keyword == "while") {
+        tokenType = WHILE;
+    } else if (keyword == "do") {
+        tokenType = DO;
+    } else if (keyword == "for") {
+        tokenType = FOR;
+    } else if (keyword == "char") {
+        tokenType = CHAR;
+    } else if (keyword == "string") {
+        tokenType = STRING;
+    } else if (keyword == "float") {
+        tokenType = FLOAT;
+    } else if (keyword == "int") {
+        tokenType = INT;
+    } else if (keyword == "enum") {
+        tokenType = ENUM;
+    } else if (keyword == "continue") {
+        tokenType = CONTINUE;
+    } else if (keyword == "break") {
+        tokenType = BREAK;
+    } else if (keyword == "true") {
+        tokenType = TRUE;
+    } else if (keyword == "false") {
+        tokenType = FALSE;
+    } else {
+        return false;
+    }
+    return true;
+}
+
 
 char Lexer::peek() {
     if (isAtEnd()) {

@@ -23,7 +23,8 @@ typedef enum {
     NUMBER, IDENTIFIER,
 
     // Keywords
-    FUNCTION, VAR, RETURN,
+    FUNCTION, VAR, RETURN, CONST, IF, ELSE, ELIF, WHILE, DO, FOR,
+    CHAR, STRING, FLOAT, INT, ENUM, CONTINUE, BREAK, TRUE, FALSE,
 
     // End-of-file
     END_OF_FILE
@@ -34,6 +35,8 @@ typedef struct {
     string lexeme;
     Location location;
 } Token;
+
+void print(Token *token);
 
 Token *createToken(TokenType type, string lexeme, int line, int column);
 
