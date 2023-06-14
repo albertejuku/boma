@@ -3,4 +3,4 @@ project(boma)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(boma main.cpp base/Token.cpp base/Token.h base/Lexer.cpp base/Lexer.h base/Location.cpp base/Location.h base/LexicalAnalyzer.cpp base/LexicalAnalyzer.h)
+add_executable(boma main.cpp lexer/Token.cpp lexer/Token.h lexer/Lexer.cpp lexer/Lexer.h lexer/Location.cpp lexer/Location.h)

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "base/Lexer.h"
+#include "lexer/Lexer.h"
 
 int main() {
     string s = "int age is var name = 'Albert';";
