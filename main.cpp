@@ -3,15 +3,16 @@
 #include "base/Lexer.h"
 
 int main() {
-    string s = "int main() {};";
+    string s = "int age is var name = 'Albert';";
     Lexer lexer(s);
-    Token *token;
 //    while((token = lexer.getTokens()) != nullptr) {
 //        print(token);
 //    }
-
-    lexer.getTokens();
-
+    vector<Token> *tokens = lexer.getTokens();
+    for (Token &item: *tokens) {
+        print(item);
+    }
+    cout << "LENGTH: " << tokens->size() << endl;
     cout << "This has been the end." << endl;
     return 0;
 }

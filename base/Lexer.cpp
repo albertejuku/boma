@@ -9,7 +9,7 @@
 #include <vector>
 
 Lexer::Lexer(string sourceCode) : sourceCode(std::move(sourceCode)), currentPosition(0), currentLine(1),
-                                  currentColumn(1), lexeme("") {
+                                  currentColumn(1){
 }
 
 Token *Lexer::getNextToken() {
@@ -28,25 +28,25 @@ Token *Lexer::getNextToken() {
             tokenType = LEFT_BRACE;
             break;
         case '}':
-            tokenType = (RIGHT_BRACE);
+            tokenType = RIGHT_BRACE;
             break;
         case ',':
-            tokenType = (COMMA);
+            tokenType = COMMA;
             break;
         case ';':
-            tokenType = (SEMICOLON);
+            tokenType = SEMICOLON;
             break;
         case '+':
-            tokenType = (PLUS);
+            tokenType = PLUS;
             break;
         case '-':
-            tokenType = (MINUS);
+            tokenType = MINUS;
             break;
         case '*':
-            tokenType = (MULTIPLY);
+            tokenType = MULTIPLY;
             break;
         case '/':
-            tokenType = (DIVIDE);
+            tokenType = DIVIDE;
             break;
 
             // Ignore whitespace and newline
@@ -54,11 +54,13 @@ Token *Lexer::getNextToken() {
         case '\r':
         case '\t':
             lexeme.pop_back();
+//            return nullptr;
             break;
         case '\n':
             lexeme.pop_back();
             currentLine++;
             currentColumn = 1;
+//            return nullptr;
             break;
         default:
             if (isDigit(c)) {
@@ -72,19 +74,98 @@ Token *Lexer::getNextToken() {
             break;
     }
 
-    cout << "LEXEME: " << lexeme << endl;
-    cout << "TOKEN: " << tokenType << endl;
+    cout << "LEXEME: " << lexeme << "\t|\tTOKEN: " << tokenType << endl;
+    Token * token = (Token*) malloc(sizeof(Token));
+    token->lexeme = lexeme;
+    token->type = tokenType;
+    token->location = *createLocation(currentLine, currentColumn);
+//    print(*token);
+//    token->location.line = currentLine;
+    return token;
     return nullptr;
-//    return createToken(END_OF_FILE, lexeme, currentLine, currentColumn);
+    return createToken(tokenType, lexeme, currentLine, currentColumn);
 }
+
+
+//vector<Token> *Lexer::getTokens() {
+//    auto *tokens = new vector<Token>();
+//    while (!isAtEnd()) {
+//        char c = advance();
+//        lexeme = c;
+//        switch (c) {
+//            // Single-character tokens
+//            case '(':
+//                tokenType = LEFT_PAREN;
+//                break;
+//            case ')':
+//                tokenType = RIGHT_PAREN;
+//                break;
+//            case '{':
+//                tokenType = LEFT_BRACE;
+//                break;
+//            case '}':
+//                tokenType = RIGHT_BRACE;
+//                break;
+//            case ',':
+//                tokenType = COMMA;
+//                break;
+//            case ';':
+//                tokenType = SEMICOLON;
+//                break;
+//            case '+':
+//                tokenType = PLUS;
+//                break;
+//            case '-':
+//                tokenType = MINUS;
+//                break;
+//            case '*':
+//                tokenType = MULTIPLY;
+//                break;
+//            case '/':
+//                tokenType = DIVIDE;
+//                break;
+//
+//                // Ignore whitespace and newline
+//            case ' ':
+//            case '\r':
+//            case '\t':
+//                lexeme.pop_back();
+//                return nullptr;
+//                break;
+//            case '\n':
+//                lexeme.pop_back();
+//                currentLine++;
+//                currentColumn = 1;
+//                return nullptr;
+//                break;
+//            default:
+//                if (isDigit(c)) {
+//                    tokenizeNumber();
+//                } else if (isAlpha(c)) {
+//                    tokenizeIdentifier();
+//                } else {
+//                    // Handle unexpected character
+//                    // ...
+//                }
+//                break;
+//        }
+//
+//        Token *token = createToken(tokenType, lexeme, currentLine, currentColumn);
+//
+//        print(*token);
+//
+//        tokens->push_back(*token);
+//    }
+//
+//    return tokens;
+//}
 
 vector<Token> *Lexer::getTokens() {
     auto *tokens = new vector<Token>();
     while (!isAtEnd()) {
-//        tokens->push_back(*getNextToken());
-        getNextToken();
+        Token token = *getNextToken();
+        tokens->push_back(token);
     }
-
     return tokens;
 }
 
@@ -115,6 +196,13 @@ void Lexer::tokenizeIdentifier() {
     while (isAlpha(c)) {
         lexeme += c;
         c = advance();
+    }
+
+    if(c == ' ' || c == '\n') {
+
+    } else {
+        currentPosition--;
+        currentColumn--;
     }
 
     tokenizeKeyword(lexeme);
@@ -161,11 +249,11 @@ bool Lexer::tokenizeKeyword(const string &keyword) {
     } else if (keyword == "false") {
         tokenType = FALSE;
     } else {
+        tokenType = IDENTIFIER;
         return false;
     }
     return true;
 }
-
 
 char Lexer::peek() {
     if (isAtEnd()) {

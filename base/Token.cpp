@@ -19,22 +19,24 @@ string tokenList[] = {"LEFT_PAREN", "RIGHT_PAREN", "LEFT_BRACE", "RIGHT_BRACE",
                       "NUMBER", "IDENTIFIER",
 
         // Keywords
-                      "FUNCTION", "VAR", "RETURN",
+                      "FUNCTION", "VAR", "RETURN",  "CONST", "IF", "ELSE", "ELIF", "WHILE", "DO", "FOR",
+                      "CHAR", "STRING", "FLOAT", "INT", "ENUM", "CONTINUE", "BREAK", "TRUE", "FALSE",
 
         // End-of-file
                       "END_OF_FILE"};
 
 
-Token *createToken(TokenType type, string lexeme, int line, int column) {
-    auto *token = (Token *) malloc(sizeof(Token));
+Token* createToken(TokenType type, const string& lexeme, int line, int column) {
+    auto* token = (Token*)malloc(sizeof(Token));
     token->type = type;
-    token->lexeme = std::move(lexeme);
+    token->lexeme = lexeme;
     token->location = *createLocation(line, column);
     return token;
 }
 
-void print(Token* token) {
-    std::cout << "{ " << tokenList[token->type] << ", " << token->lexeme << ", " << token->location.line << ":" << token->location.column << " }" << endl;
+
+void print(const Token& token) {
+    std::cout << "{ " << tokenList[token.type] << ", " << token.lexeme << ", " << token.location.line << ":" << token.location.column << " }" << endl;
 }
 
 void freeToken(Token *token) {

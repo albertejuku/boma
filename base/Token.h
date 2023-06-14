@@ -26,19 +26,20 @@ typedef enum {
     FUNCTION, VAR, RETURN, CONST, IF, ELSE, ELIF, WHILE, DO, FOR,
     CHAR, STRING, FLOAT, INT, ENUM, CONTINUE, BREAK, TRUE, FALSE,
 
+
     // End-of-file
     END_OF_FILE
 } TokenType;
 
 typedef struct {
     TokenType type;
-    string lexeme;
+    std::string lexeme;
     Location location;
 } Token;
 
-void print(Token *token);
+void print(const Token& token);
 
-Token *createToken(TokenType type, string lexeme, int line, int column);
+Token *createToken(TokenType type, const string& lexeme, int line, int column);
 
 void freeToken(Token *token);
 
