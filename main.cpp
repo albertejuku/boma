@@ -1,16 +1,23 @@
 #include <iostream>
+#include <fstream>
 
 #include "lexer/Lexer.h"
 
-int main() {
-    string s = "var name: string = 'Albert';";
-    Lexer lexer(s);
+int main(int argc, char **argv) {
+    ifstream *sourceCode = new ifstream();
+    sourceCode->open(argv[1], ifstream::in);
+    if(sourceCode->is_open()) {
+        Lexer lexer(sourceCode);
 
-    vector<Token> *tokens = lexer.getTokens();
-    for (Token &item: *tokens) {
-        print(item);
+        vector<Token> *tokens = lexer.getTokens();
+        for (Token &item: *tokens) {
+            print(item);
+        }
+        cout << "LENGTH: " << tokens->size() << endl;
     }
-    cout << "LENGTH: " << tokens->size() << endl;
+
+
+
     cout << "This has been the end." << endl;
     return 0;
 }

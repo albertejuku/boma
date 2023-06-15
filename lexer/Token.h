@@ -20,7 +20,7 @@ typedef enum {
     ARROW,
 
     // Arithmetic operators
-    PLUS, MINUS, MULTIPLY, DIVIDE,
+    PLUS, MINUS, MULTIPLY, DIVIDE, TIMES,
     ADD, SUB, MULT, DIV, MOD, INC, DEC,
     ASSIGN, ADD_ASSIGN, SUB_ASSIGN, MULT_ASSIGN, MOD_ASSIGN, DIV_ASSIGN,
     EQUALS, NOT_EQUALS, GREATER_THAN, LESS_THAN, GREATER_THAN_EQUAL, LESS_THAN_EQUAL,
@@ -28,33 +28,33 @@ typedef enum {
     TERNARY, DOT, BOMA_NULL, NULL_COALISING,
 
     // Literals
-    IDENTIFIER, CHAR, STRING, FLOAT, INT, BYTE, BOOLEAN, TRUE, FALSE, HEX, OCTAL, BINARY,
+    IDENTIFIER, CHAR, STRING, FLOAT, INT, BYTE, BOOLEAN, TRUE, FALSE, HEX, OCTAL, BINARY, INT_LITERAL, STRING_LITERAL, CHAR_LITERAL, BYTE_LITERAL,
     LIST, ARRAY, SET, MAP, OBJECT, JSON,
     CLASS, INTERFACE,
 
     // Keywords
     VAR, RETURN, CONST,
-     VOID,
+    VOID, PRINT, INPUT,
     ENUM, CONTINUE, BREAK,
 
     // Control flow
     IF, ELSE, ELSE_IF, WHILE, DO, FOR, SWITCH, CASE, FOR_EACH,
     THROW, TRY_CATCH, FINALLY,
 
-
+    NAL,
     // End-of-file
-    END_OF_FILE
-} TokenType;
+    END_OF_INPUT
+} TokenCode;
 
 typedef struct {
-    TokenType type;
+    TokenCode code;
     std::string lexeme;
     Location location;
 } Token;
 
 void print(const Token& token);
 
-Token *createToken(TokenType type, const string& lexeme, int line, int column);
+Token *createToken(TokenCode code, const string& lexeme, int line, int column);
 
 void freeToken(Token *token);
 

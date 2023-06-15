@@ -11,27 +11,32 @@
 
 class Lexer {
 public:
-    explicit Lexer(string  sourceCode);
+    Lexer(ifstream*);
     Token* getNextToken();
     std::vector<Token> * getTokens();
 
 private:
-    bool isAtEnd();
-    char advance();
     bool isDigit(char c);
     bool isAlpha(char c);
     void tokenizeNumber();
     void tokenizeIdentifier();
-    bool tokenizeKeyword(const string& word);
-    char peek();
-    char peekNext();
+    void tokenizeKeyword(const string& word);
+    bool isEOI();
+    void getNextChar();
+    void readNextLine();
+    void unGetChar();
 
-    const string sourceCode;
+    ifstream *sourceCodeFile;
     int currentPosition;
     int currentLine;
     int currentColumn;
+    int currentCharIndex;
     string lexeme;
-    TokenType tokenType;
+    TokenCode tokenCode;
+    string line;
+    char currentChar;
+
+
 
 };
 

@@ -7,176 +7,262 @@
 #include <utility>
 #include <iostream>
 #include <vector>
+#include<fstream>
 
-Lexer::Lexer(string sourceCode) : sourceCode(std::move(sourceCode)), currentPosition(0), currentLine(1),
-                                  currentColumn(1){
+Lexer::Lexer(ifstream *scf) {
+    sourceCodeFile = scf;
+    currentPosition = 0;
+    currentLine = 0;
+    currentColumn = 0;
+    lexeme = "";
+    line = "\n";
+    currentChar = '\n';
+    tokenCode = IDENTIFIER;
+    currentCharIndex = 0;
 }
 
+bool Lexer::isEOI() {
+    return sourceCodeFile->peek() == EOF;
+}
+
+/**
+ *
+ * @return pointer to a token
+ */
 Token *Lexer::getNextToken() {
+    getNextChar();
 
-    char c = advance();
-    lexeme = c;
-    switch (c) {
-        // Single-character tokens
-        case '(':
-            tokenType = LEFT_PAREN;
-            break;
-        case ')':
-            tokenType = RIGHT_PAREN;
-            break;
-        case '{':
-            tokenType = LEFT_BRACE;
-            break;
-        case '}':
-            tokenType = RIGHT_BRACE;
-            break;
-        case ',':
-            tokenType = COMMA;
-            break;
-        case ';':
-            tokenType = SEMICOLON;
-            break;
-        case '+':
-            tokenType = PLUS;
-            break;
-        case '-':
-            tokenType = MINUS;
-            break;
-        case '*':
-            tokenType = MULTIPLY;
-            break;
-        case '/':
-            tokenType = DIVIDE;
-            break;
-
-            // Ignore whitespace and newline
-        case ' ':
-        case '\r':
-        case '\t':
-            lexeme.pop_back();
-//            return nullptr;
-            break;
-        case '\n':
-            lexeme.pop_back();
-            currentLine++;
-            currentColumn = 1;
-//            return nullptr;
-            break;
-        default:
-            if (isDigit(c)) {
-                tokenizeNumber();
-            } else if (isAlpha(c)) {
-                tokenizeIdentifier();
+    while (isspace(currentChar) || currentChar == '/') {
+        if (currentChar == '/') {
+            getNextChar();
+            if (currentChar == '/') {
+                readNextLine();
             } else {
-                // Handle unexpected character
-                // ...
+                tokenCode = SLASH;
+                lexeme = "/";
+                return createToken(tokenCode, lexeme, currentLine, currentColumn - 1);
             }
-            break;
+        } else {
+            getNextChar();
+        }
     }
 
-    cout << "LEXEME: " << lexeme << "\t|\tTOKEN: " << tokenType << endl;
-    Token * token = (Token*) malloc(sizeof(Token));
-    token->lexeme = lexeme;
-    token->type = tokenType;
-    token->location = *createLocation(currentLine, currentColumn);
-//    print(*token);
-//    token->location.line = currentLine;
-    return token;
-    return nullptr;
-    return createToken(tokenType, lexeme, currentLine, currentColumn);
+    if (isEOI()) {
+        tokenCode = END_OF_INPUT;
+    }
+
+    switch (currentChar) {
+        case '+':
+            tokenCode = PLUS;
+            lexeme = "+";
+            break;
+        case '-':
+            tokenCode = MINUS;
+            lexeme = "-";
+            break;
+        case '*':
+            tokenCode = TIMES;
+            lexeme = "*";
+            break;
+        case '%':
+            tokenCode = MOD;
+            lexeme = "%";
+            break;
+        case '(':
+            tokenCode = LEFT_PAREN;
+            lexeme = "(";
+            break;
+        case ')':
+            tokenCode = RIGHT_PAREN;
+            lexeme = ")";
+            break;
+        case '{':
+            tokenCode = LEFT_BRACE;
+            lexeme = "{";
+            break;
+        case '}':
+            tokenCode = RIGHT_BRACE;
+            lexeme = "}";
+            break;
+        case ',':
+            tokenCode = COMMA;
+            lexeme = ",";
+            break;
+        case ';':
+            tokenCode = SEMICOLON;
+            lexeme = ";";
+            break;
+        case '|':
+            getNextChar();
+            if (currentChar == '|') {
+                tokenCode = OR;
+                lexeme = "||";
+            } else {
+                tokenCode = BIT_OR;
+                lexeme = "|";
+                unGetChar();
+            }
+            break;
+        case '&':
+            getNextChar();
+            if (currentChar == '&') {
+                tokenCode = AND;
+                lexeme = "&&";
+            } else {
+                tokenCode = BIT_AND;
+                lexeme = "&";
+                unGetChar();
+            }
+            break;
+        case '=':
+            getNextChar();
+            if (currentChar == '=') {
+                tokenCode = EQUALS;
+                lexeme = "==";
+            } else {
+                tokenCode = ASSIGN;
+                lexeme = "=";
+                unGetChar();
+            }
+            break;
+        case '!':
+            getNextChar();
+            if (currentChar == '=') {
+                tokenCode = NOT_EQUALS;
+                lexeme = "!=";
+            } else {
+                tokenCode = NOT;
+                lexeme = "!";
+                unGetChar();
+            }
+            break;
+        case '<':
+            getNextChar();
+            if (currentChar == '=') {
+                tokenCode = LESS_THAN_EQUAL;
+                lexeme = "<=";
+            } else {
+                tokenCode = LESS;
+                lexeme = "<";
+                unGetChar();
+            }
+            break;
+        case '>':
+            getNextChar();
+            if (currentChar == '=') {
+                tokenCode = GREATER_THAN_EQUAL;
+                lexeme = ">=";
+            } else {
+                tokenCode = GREATER;
+                lexeme = ">";
+                unGetChar();
+            }
+            break;
+        default:
+            lexeme = "";
+            if (isdigit(currentChar)) {
+                tokenCode = INT_LITERAL;
+                while (isdigit(currentChar)) {
+                    lexeme += currentChar;
+                    getNextChar();
+                }
+                if (!isdigit(currentChar)) {
+                    currentCharIndex -= 1;
+                }
+            } else if (isalpha(currentChar)) {
+                while (isalnum(currentChar)) {
+                    lexeme += currentChar;
+                    if (lexeme == "true") {
+                        tokenCode = TRUE;
+                        break;
+                    } else if (lexeme == "boolean") {
+                        tokenCode = BOOLEAN;
+                    } else if (lexeme == "main") {
+                        tokenCode = IDENTIFIER;
+                        break;
+                    } else if (lexeme == "return") {
+                        tokenCode = RETURN;
+                        break;
+                    } else if (lexeme == "false") {
+                        tokenCode = FALSE;
+                        break;
+                    } else if (lexeme == "int") {
+                        tokenCode = INT;
+                        break;
+                    } else if (lexeme == "float") {
+                        tokenCode = FLOAT;
+                        break;
+                    } else if (lexeme == "void") {
+                        tokenCode = VOID;
+                        break;
+                    } else if (lexeme == "if") {
+                        tokenCode = IF;
+                        break;
+                    } else if (lexeme == "else") {
+                        tokenCode = ELSE;
+                        break;
+                    } else if (lexeme == "while") {
+                        tokenCode = WHILE;
+                        break;
+                    } else if (lexeme == "do") {
+                        tokenCode = DO;
+                    } else if (lexeme == "for") {
+                        tokenCode = FOR;
+                    } else if (lexeme == "print") {
+                        tokenCode = PRINT;
+                    } else if (lexeme == "input") {
+                        tokenCode = INPUT;
+                    } else {
+                        tokenCode = NAL;
+                    }
+                    getNextChar();
+                }
+                unGetChar();
+            }
+    }
+
+    return createToken(tokenCode, lexeme, currentLine, currentColumn - (int) lexeme.length());
 }
 
-
-//vector<Token> *Lexer::getTokens() {
-//    auto *tokens = new vector<Token>();
-//    while (!isAtEnd()) {
-//        char c = advance();
-//        lexeme = c;
-//        switch (c) {
-//            // Single-character tokens
-//            case '(':
-//                tokenType = LEFT_PAREN;
-//                break;
-//            case ')':
-//                tokenType = RIGHT_PAREN;
-//                break;
-//            case '{':
-//                tokenType = LEFT_BRACE;
-//                break;
-//            case '}':
-//                tokenType = RIGHT_BRACE;
-//                break;
-//            case ',':
-//                tokenType = COMMA;
-//                break;
-//            case ';':
-//                tokenType = SEMICOLON;
-//                break;
-//            case '+':
-//                tokenType = PLUS;
-//                break;
-//            case '-':
-//                tokenType = MINUS;
-//                break;
-//            case '*':
-//                tokenType = MULTIPLY;
-//                break;
-//            case '/':
-//                tokenType = DIVIDE;
-//                break;
-//
-//                // Ignore whitespace and newline
-//            case ' ':
-//            case '\r':
-//            case '\t':
-//                lexeme.pop_back();
-//                return nullptr;
-//                break;
-//            case '\n':
-//                lexeme.pop_back();
-//                currentLine++;
-//                currentColumn = 1;
-//                return nullptr;
-//                break;
-//            default:
-//                if (isDigit(c)) {
-//                    tokenizeNumber();
-//                } else if (isAlpha(c)) {
-//                    tokenizeIdentifier();
-//                } else {
-//                    // Handle unexpected character
-//                    // ...
-//                }
-//                break;
-//        }
-//
-//        Token *token = createToken(tokenType, lexeme, currentLine, currentColumn);
-//
-//        print(*token);
-//
-//        tokens->push_back(*token);
-//    }
-//
-//    return tokens;
-//}
 
 vector<Token> *Lexer::getTokens() {
     auto *tokens = new vector<Token>();
-    while (!isAtEnd()) {
+    while (!isEOI()) {
         Token token = *getNextToken();
         tokens->push_back(token);
     }
     return tokens;
 }
 
-bool Lexer::isAtEnd() {
-    return currentPosition >= sourceCode.length();
+void Lexer::getNextChar() {
+    if (currentCharIndex < line.length()) {
+        currentChar = line[currentCharIndex];
+        currentCharIndex += 1;
+        currentColumn += 1;
+    } else if (!sourceCodeFile->eof()) {
+        readNextLine();
+        getNextChar();
+    } else {
+        currentChar = EOF;
+    }
 }
 
-char Lexer::advance() {
-    char c = sourceCode[currentPosition++];
-    currentColumn++;
-    return c;
+void Lexer::unGetChar() {
+    if(currentCharIndex > 0) {
+        currentColumn--;
+        currentCharIndex--;
+        currentChar = line[currentCharIndex];
+    }
+}
+
+void Lexer::readNextLine() {
+    if (getline(*sourceCodeFile, line)) {
+        currentCharIndex = 0;
+        currentColumn = 0;
+        currentLine++;
+    } else {
+        line = "";
+    }
 }
 
 bool Lexer::isDigit(char c) {
@@ -192,13 +278,13 @@ void Lexer::tokenizeNumber() {
 }
 
 void Lexer::tokenizeIdentifier() {
-    char c = advance();
-    while (isAlpha(c)) {
-        lexeme += c;
-        c = advance();
+    getNextChar();
+    while (isAlpha(currentChar)) {
+        lexeme += currentChar;
+        getNextChar();
     }
 
-    if(c == ' ' || c == '\n') {
+    if (currentChar == ' ' || currentChar == '\n') {
 
     } else {
         currentPosition--;
@@ -209,58 +295,6 @@ void Lexer::tokenizeIdentifier() {
 
 }
 
-bool Lexer::tokenizeKeyword(const string &keyword) {
-    if (keyword == "var") {
-        tokenType = VAR;
-    } else if (keyword == "return") {
-        tokenType = RETURN;
-    } else if (keyword == "const") {
-        tokenType = CONST;
-    } else if (keyword == "if") {
-        tokenType = IF;
-    } else if (keyword == "else") {
-        tokenType = ELSE;
-    } else if (keyword == "while") {
-        tokenType = WHILE;
-    } else if (keyword == "do") {
-        tokenType = DO;
-    } else if (keyword == "for") {
-        tokenType = FOR;
-    } else if (keyword == "char") {
-        tokenType = CHAR;
-    } else if (keyword == "string") {
-        tokenType = STRING;
-    } else if (keyword == "float") {
-        tokenType = FLOAT;
-    } else if (keyword == "int") {
-        tokenType = INT;
-    } else if (keyword == "enum") {
-        tokenType = ENUM;
-    } else if (keyword == "continue") {
-        tokenType = CONTINUE;
-    } else if (keyword == "break") {
-        tokenType = BREAK;
-    } else if (keyword == "true") {
-        tokenType = TRUE;
-    } else if (keyword == "false") {
-        tokenType = FALSE;
-    } else {
-        tokenType = IDENTIFIER;
-        return false;
-    }
-    return true;
-}
+void Lexer::tokenizeKeyword(const std::string &word) {
 
-char Lexer::peek() {
-    if (isAtEnd()) {
-        return '\0';
-    }
-    return sourceCode[currentPosition];
-}
-
-char Lexer::peekNext() {
-    if (currentPosition + 1 >= sourceCode.length()) {
-        return '\0';
-    }
-    return sourceCode[currentPosition + 1];
 }

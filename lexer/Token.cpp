@@ -18,7 +18,7 @@ string tokenList[] = {
         "ARROW",
 
         // Arithmetic operators
-        "PLUS", "MINUS", "MULTIPLY", "DIVIDE",
+        "PLUS", "MINUS", "MULTIPLY", "DIVIDE", "TIMES",
         "ADD", "SUB", "MULT", "DIV", "MOD", "INC", "DEC",
         "ASSIGN", "ADD_ASSIGN", "SUB_ASSIGN", "MULT_ASSIGN", "MOD_ASSIGN", "DIV_ASSIGN",
         "EQUALS", "NOT_EQUALS", "GREATER_THAN", "LESS_THAN", "GREATER_THAN_EQUAL", "LESS_THAN_EQUAL",
@@ -26,13 +26,13 @@ string tokenList[] = {
         "TERNARY", "DOT", "BOMA_NULL", "NULL_COALISING",
 
         // Literals
-        "IDENTIFIER", "CHAR", "STRING", "FLOAT", "INT", "BYTE", "BOOLEAN", "TRUE", "FALSE", "HEX", "OCTAL", "BINARY",
+        "IDENTIFIER", "CHAR", "STRING", "FLOAT", "INT", "BYTE", "BOOLEAN", "TRUE", "FALSE", "HEX", "OCTAL", "BINARY", "INT_LITERAL", "STRING_LITERAL", "CHAR_LITERAL", "BYTE_LITERAL",
         "LIST", "ARRAY", "SET", "MAP", "OBJECT", "JSON",
         "CLASS", "INTERFACE",
 
         // Keywords
         "VAR", "RETURN", "CONST",
-        "VOID",
+        "VOID", "PRINT", "INPUT",
         "ENUM", "CONTINUE", "BREAK",
 
         // Control flow
@@ -40,15 +40,16 @@ string tokenList[] = {
         "THROW", "TRY_CATCH", "FINALLY",
 
 
+        "NAL",
         // End-of-file
-        "END_OF_FILE"
+        "END_OF_INPUT"
 };
 
 
-Token* createToken(TokenType type, const string& lexeme, int line, int column) {
+Token* createToken(TokenCode code, const string& lexeme, int line, int column) {
     auto* token = new Token();
 //    auto* token = (Token*)malloc(sizeof(Token));
-    token->type = type;
+    token->code = code;
     token->lexeme = lexeme;
     token->location = *createLocation(line, column);
     return token;
@@ -56,7 +57,7 @@ Token* createToken(TokenType type, const string& lexeme, int line, int column) {
 
 
 void print(const Token& token) {
-    std::cout << "{ " << tokenList[token.type] << ", " << token.lexeme << ", " << token.location.line << ":" << token.location.column << " }" << endl;
+    std::cout << "{ " << tokenList[token.code] << ", " << token.lexeme << ", " << token.location.line << ":" << token.location.column << " }" << endl;
 }
 
 void freeToken(Token *token) {
