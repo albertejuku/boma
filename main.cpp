@@ -3,11 +3,9 @@
 #include "lexer/Lexer.h"
 
 int main() {
-    string s = "int age is var name = 'Albert';";
+    string s = "var name: string = 'Albert';";
     Lexer lexer(s);
-//    while((token = lexer.getTokens()) != nullptr) {
-//        print(token);
-//    }
+
     vector<Token> *tokens = lexer.getTokens();
     for (Token &item: *tokens) {
         print(item);

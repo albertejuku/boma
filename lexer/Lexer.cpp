@@ -212,8 +212,6 @@ void Lexer::tokenizeIdentifier() {
 bool Lexer::tokenizeKeyword(const string &keyword) {
     if (keyword == "var") {
         tokenType = VAR;
-    } else if (keyword == "function") {
-        tokenType = FUNCTION;
     } else if (keyword == "return") {
         tokenType = RETURN;
     } else if (keyword == "const") {
@@ -222,8 +220,6 @@ bool Lexer::tokenizeKeyword(const string &keyword) {
         tokenType = IF;
     } else if (keyword == "else") {
         tokenType = ELSE;
-    } else if (keyword == "elif") {
-        tokenType = ELIF;
     } else if (keyword == "while") {
         tokenType = WHILE;
     } else if (keyword == "do") {
