@@ -20,7 +20,6 @@ private:
     bool isAlpha(char c);
     void tokenizeNumber();
     void tokenizeIdentifier();
-    void tokenizeKeyword(const string& word);
     bool isEOI();
     void getNextChar();
     void readNextLine();
@@ -37,7 +36,7 @@ private:
     char currentChar;
 
 
-
+    bool isOctalDigit(char c);
 };
 
 #endif //BOMA_LEXER_H
