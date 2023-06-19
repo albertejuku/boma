@@ -26,7 +26,7 @@
 - `DOT (.), COMMA(,)`
 
 #### DATA TYPES
-- Primitives - `INT(int), CHAR(char), BOOLEAN(bool), BYTE(byte), STRING(string), FLOAT(float)`
+- Primitives - `INT(int), CHAR(char), BOOLEAN(boolean), BYTE(byte), STRING(string), FLOAT(float)`
 - Reference - `ARRAY(array), LIST(list), SET(set), MAP(map), JSON(json), OBJECT(object)`
 - Object - `class, interface, enum`
 
