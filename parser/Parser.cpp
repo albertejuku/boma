@@ -4,7 +4,7 @@
 
 #include "Parser.h"
 
-Parser::Parser(const std::vector<Token>& tokens)
+Parser::Parser(const std::vector<Token> &tokens)
         : tokens(tokens), currentTokenIndex(0) {
 }
 
@@ -21,21 +21,9 @@ void Parser::program() {
 
 void Parser::statement() {
     if (match(TokenCode::VAR)) {
-        // Parse variable declaration
-        std::string identifier = consume(TokenCode::IDENTIFIER).lexeme;
-        consume(TokenCode::COLON);
-        std::string type = consume(TokenCode::TYPE).lexeme;
-        consume(TokenCode::ASSIGN);
-        Expression* expression = parseExpression();
-        consume(TokenCode::SEMICOLON);
-
-        // Process the variable declaration
-        // ...
 
     } else if (match(TokenCode::PRINT)) {
         // Parse print statement
-        Expression* expression = parseExpression();
-        consume(TokenCode::SEMICOLON);
 
         // Process the print statement
         // ...
@@ -46,33 +34,33 @@ void Parser::statement() {
     }
 }
 
-Expression* Parser::parseExpression() {
+Expression *Parser::parseExpression() {
     // Parse different expression types (e.g., arithmetic, logical, etc.)
     // Example: Arithmetic expression
-    Expression* left = parseTerm();
+    Expression *left = parseTerm();
 
     while (match(TokenCode::ADD) || match(TokenCode::SUB)) {
         Token operatorToken = previous();
-        Expression* right = parseTerm();
+        Expression *right = parseTerm();
         left = new BinaryExpression(operatorToken, left, right);
     }
 
     return left;
 }
 
-Expression* Parser::parseTerm() {
-    Expression* left = parseFactor();
+Expression *Parser::parseTerm() {
+    Expression *left = parseFactor();
 
     while (match(TokenCode::MULT) || match(TokenCode::DIV)) {
         Token operatorToken = previous();
-        Expression* right = parseFactor();
+        Expression *right = parseFactor();
         left = new BinaryExpression(operatorToken, left, right);
     }
 
     return left;
 }
 
-Expression* Parser::parseFactor() {
+Expression *Parser::parseFactor() {
     if (match(TokenCode::INT_LITERAL)) {
         int value = std::stoi(previous().lexeme);
         return new IntegerLiteralExpression(value);
@@ -80,7 +68,7 @@ Expression* Parser::parseFactor() {
         std::string identifier = previous().lexeme;
         return new VariableExpression(identifier);
     } else if (match(TokenCode::LEFT_PAREN)) {
-        Expression* expression = parseExpression();
+        Expression *expression = parseExpression();
         consume(TokenCode::RIGHT_PAREN);
         return expression;
     } else {
@@ -112,7 +100,7 @@ Token Parser::peek() {
         return tokens[currentTokenIndex];
     } else {
         // Return an "end-of-input" token to indicate the end of the token stream
-        return Token(TokenCode::END_OF_INPUT, "", 0, 0);
+//        return Token(TokenCode::END_OF_INPUT, "", 0, 0);
     }
 }
 
@@ -121,7 +109,7 @@ Token Parser::previous() const {
         return tokens[currentTokenIndex - 1];
     } else {
         // Return an invalid token if there is no previous token
-        return Token(TokenCode::NAL, "", 0, 0);
+//        return Token(TokenCode::NAL, "", 0, 0);
     }
 }
 
