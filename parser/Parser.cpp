@@ -10,7 +10,7 @@ Parser::Parser(const std::vector<Token> &tokens)
 
 void Parser::parse() {
     program();
-    // Add additional parsing logic as needed
+    // TODO: ...
 }
 
 void Parser::program() {
@@ -29,14 +29,14 @@ void Parser::statement() {
         // ...
 
     } else {
-        // Handle other statement types
+        // TODO:...
         // ...
     }
 }
 
 Expression *Parser::parseExpression() {
     // Parse different expression types (e.g., arithmetic, logical, etc.)
-    // Example: Arithmetic expression
+    // TODO:-> Arithmetic expression
     Expression *left = parseTerm();
 
     while (match(TokenCode::ADD) || match(TokenCode::SUB)) {
@@ -72,7 +72,7 @@ Expression *Parser::parseFactor() {
         consume(TokenCode::RIGHT_PAREN);
         return expression;
     } else {
-        // Handle other factor types
+        // TODO:-> Handle other factor types
         // ...
     }
 }
